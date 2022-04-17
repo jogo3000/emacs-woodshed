@@ -6,6 +6,7 @@
 
 (require 'ivy)
 
+(defvar woodshed/practice-buffer-name "*arpeggio-practice*")
 
 (defvar woodshed/notes '("C"
                          ("C#" "Db")
@@ -101,7 +102,7 @@ Supports only triads at the moment."
 
 (defun woodshed/arpeggio-practice (root)
   "Create a practice sheet to a buffer for chords in the given ROOT."
-  (with-current-buffer (get-buffer-create "*arpeggio-practice*")
+  (with-current-buffer (get-buffer-create woodshed/practice-buffer-name)
     (delete-region (point-min) (point-max))
     (let ((chords (woodshed/arpeggios (woodshed/scale root))))
       (insert "Basic chords:\n")
@@ -117,7 +118,9 @@ Supports only triads at the moment."
       (insert "\nSecond inversions:\n")
       (dolist (chord chords)
         (insert (woodshed/pprint-chord (woodshed/second-inversion chord))
-                "\n")))))
+                "\n")))
+
+    (switch-to-buffer-other-window woodshed/practice-buffer-name)))
 
 
 (defun woodshed/start-practicing-arpeggios ()
