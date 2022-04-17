@@ -63,6 +63,12 @@
       (string-join note "/")
     note))
 
+(defun woodshed/parse-note (note-string)
+  "Parse NOTE-STRING into internal representation of the note."
+  (if (string-match (rx "/") note-string)
+      (split-string note-string "/")
+    note-string))
+
 (defun woodshed/pprint-chord (chord)
   "Stringify a CHORD."
   (concat
@@ -115,15 +121,15 @@
 
     (switch-to-buffer-other-window woodshed/practice-buffer-name)))
 
-
 (defun woodshed/start-practicing-arpeggios ()
   "Interactive version which asks which root you want to practice on."
   (interactive)
-  (woodshed/arpeggio-practice
-   (completing-read
-    "Choose scale"
-    (mapcar 'woodshed/pprint-note woodshed/notes)
-    nil t)))
+  (let ((root-note (completing-read
+                    "Choose scale"
+                    (mapcar 'woodshed/pprint-note woodshed/notes)
+                    nil t)))
+    (woodshed/arpeggio-practice
+     (woodshed/parse-note root-note))))
 
 (provide 'emacs-woodshed)
 ;;; emacs-woodshed.el ends here
