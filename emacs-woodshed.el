@@ -35,13 +35,16 @@
 (defun woodshed/scale (root)
   "Output a major scale in the given ROOT."
   (let* ((position (seq-position woodshed/notes root))
-         (scale (list (nth position woodshed/notes))))
-    (dolist (interval woodshed/major-scale-intervals)
-      (set 'position (+ interval position))
-      (when (>= position (length woodshed/notes))
-        (set 'position (- position (length woodshed/notes))))
-      (set 'scale (cons (nth position woodshed/notes) scale)))
-    (reverse scale)))
+         (extended-notes (seq-concatenate 'list woodshed/notes woodshed/notes))
+         (positions (reverse
+                     (seq-reduce
+                      (lambda (scale interval)
+                        (cons (+ (car scale) interval) scale))
+                      woodshed/major-scale-intervals
+                      (list position)))))
+    (seq-map
+     (apply-partially 'seq-elt extended-notes)
+     positions)))
 
 (defun woodshed/arpeggios (scale)
   "Output arpeggios in the given SCALE."
