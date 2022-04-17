@@ -48,7 +48,7 @@
     (seq-map-indexed
      (lambda (note i)
        (list
-        (nth i extended-scale)
+        note
         (nth (+ i 2) extended-scale)
         (nth (+ i 4) extended-scale)))
      scale)))
