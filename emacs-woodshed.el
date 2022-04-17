@@ -7,6 +7,16 @@
 
 (require 'seq)
 
+(define-derived-mode woodshed-mode special-mode "woodshed-mode"
+  "Mode for showing outputted practice sheets.")
+
+(defface woodshed-default
+  '((t :family "Monospace"
+       :foreground "gray"
+       :weight semi-bold))
+  "The basic fixed-pitch face for woodshed buffers."
+  :group 'basic-faces)
+
 (defvar woodshed/practice-buffer-name "*arpeggio-practice*")
 
 (defvar woodshed/notes '("C"
@@ -102,6 +112,9 @@
 (defun woodshed/arpeggio-practice (root)
   "Create a practice sheet to a buffer for chords in the given ROOT."
   (with-current-buffer (get-buffer-create woodshed/practice-buffer-name)
+    (woodshed-mode)
+    (buffer-face-set 'woodshed-default)
+    (read-only-mode -1)
     (delete-region (point-min) (point-max))
     (let ((chords (woodshed/arpeggios (woodshed/scale root))))
       (insert "Basic chords:\n")
