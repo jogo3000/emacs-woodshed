@@ -20,6 +20,8 @@
                          "B")
   "Notes and their enharmonic aliases in the western musical notation.")
 
+(defvar woodshed/major-scale-intervals '(2 2 1 2 2 2))
+
 (defun woodshed/note-equal (note1 note2)
   "Check if NOTE1 and NOTE2 are the same note."
   (if (listp note2)
@@ -29,32 +31,19 @@
 
 (defun woodshed/scale (root)
   "Output a major scale in the given ROOT."
-  (let ((notes '("C"
-                 ("C#" "Db")
-                 "D"
-                 ("D#" "Eb")
-                 "E"
-                 "F"
-                 ("F#" "Gb")
-                 "G"
-                 ("G#" "Ab")
-                 "A"
-                 ("A#" "Bb")
-                 "B"))
-        (major '(2 2 1 2 2 2)))
-    (let ((position 0))
-      (while (or (not (let* ((note (nth position notes)))
-                        (woodshed/note-equal root note)))
-                 (>= position (length notes)))
-        (set 'position (+ 1 position)))
+  (let ((position 0))
+    (while (or (not (let* ((note (nth position woodshed/notes)))
+                      (woodshed/note-equal root note)))
+               (>= position (length woodshed/notes)))
+      (set 'position (+ 1 position)))
 
-      (let ((scale (list (nth position notes))))
-        (dolist (interval major)
-          (set 'position (+ interval position))
-          (when (>= position (length notes))
-            (set 'position (- position (length notes))))
-          (set 'scale (cons (nth position notes) scale)))
-        (reverse scale)))))
+    (let ((scale (list (nth position woodshed/notes))))
+      (dolist (interval woodshed/major-scale-intervals)
+        (set 'position (+ interval position))
+        (when (>= position (length woodshed/notes))
+          (set 'position (- position (length woodshed/notes))))
+        (set 'scale (cons (nth position woodshed/notes) scale)))
+      (reverse scale))))
 
 (defun woodshed/arpeggios (scale)
   "Output arpeggios in the given SCALE."
