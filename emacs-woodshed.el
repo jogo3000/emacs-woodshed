@@ -2,6 +2,7 @@
 ;;; Commentary:
 ;; This package helps western style harmony based instrument players to practice
 ;; their chops.
+;; Use `woodshed/start-practicing-arpeggios` to start practicing arpeggios.
 ;;; Code:
 
 (require 'seq)
