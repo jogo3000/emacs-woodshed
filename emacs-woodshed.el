@@ -61,12 +61,18 @@
 
 (defun woodshed/pprint-chord (chord)
   "Stringify a CHORD."
-  (string-join
-   (list
-    (woodshed/pprint-note (car chord))
-    (woodshed/pprint-note (cadr chord))
-    (woodshed/pprint-note (caddr chord)))
-   " "))
+  (concat
+   "| "
+   (string-join
+    (seq-map
+     (lambda (note)
+       (let ((note-as-string (woodshed/pprint-note note)))
+         (while (> 5 (length note-as-string))
+           (set 'note-as-string (concat note-as-string " ")))
+         note-as-string))
+     chord)
+    " ")
+   " |"))
 
 (defun woodshed/first-inversion (chord)
   "Return the first inversion of a CHORD."
