@@ -4,6 +4,8 @@
 ;; their chops.
 ;;; Code:
 
+(require 'seq)
+
 (defvar woodshed/practice-buffer-name "*arpeggio-practice*")
 
 (defvar woodshed/notes '("C"
@@ -31,19 +33,14 @@
 
 (defun woodshed/scale (root)
   "Output a major scale in the given ROOT."
-  (let ((position 0))
-    (while (or (not (let* ((note (nth position woodshed/notes)))
-                      (woodshed/note-equal root note)))
-               (>= position (length woodshed/notes)))
-      (set 'position (+ 1 position)))
-
-    (let ((scale (list (nth position woodshed/notes))))
-      (dolist (interval woodshed/major-scale-intervals)
-        (set 'position (+ interval position))
-        (when (>= position (length woodshed/notes))
-          (set 'position (- position (length woodshed/notes))))
-        (set 'scale (cons (nth position woodshed/notes) scale)))
-      (reverse scale))))
+  (let* ((position (seq-position woodshed/notes root))
+         (scale (list (nth position woodshed/notes))))
+    (dolist (interval woodshed/major-scale-intervals)
+      (set 'position (+ interval position))
+      (when (>= position (length woodshed/notes))
+        (set 'position (- position (length woodshed/notes))))
+      (set 'scale (cons (nth position woodshed/notes) scale)))
+    (reverse scale)))
 
 (defun woodshed/arpeggios (scale)
   "Output arpeggios in the given SCALE."
