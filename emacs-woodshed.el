@@ -85,20 +85,19 @@
    " "))
 
 (defun woodshed/first-inversion (chord)
-  "Return the first inversion of a CHORD.
-
-Supports only triads at the moment."
-  (list (cadr chord)
-        (caddr chord)
-        (car chord)))
+  "Return the first inversion of a CHORD."
+  (seq-concatenate 'list (seq-rest chord) (seq-take chord 1)))
 
 (defun woodshed/second-inversion (chord)
-  "Return the second inversion of a CHORD.
+  "Return the second inversion of a CHORD."
+  (woodshed/first-inversion
+   (woodshed/first-inversion chord)))
 
-Supports only triads at the moment."
-  (list (caddr chord)
-        (car chord)
-        (cadr chord)))
+(defun woodshed/third-inversion (chord)
+  "Return the third inversion of a CHORD."
+  (woodshed/first-inversion
+   (woodshed/first-inversion
+    (woodshed/first-inversion chord))))
 
 (defun woodshed/arpeggio-practice (root)
   "Create a practice sheet to a buffer for chords in the given ROOT."
