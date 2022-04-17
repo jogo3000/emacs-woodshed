@@ -4,12 +4,8 @@
 ;; their chops.
 ;;; Code:
 
-(defun woodshed/note-equal (note1 note2)
-  "Check if NOTE1 and NOTE2 are the same note."
-  (if (listp note2)
-      (or (string-equal note1 (car note2))
-          (string-equal note1 (cadr note2)))
-    (string-equal note1 note2)))
+(require 'ivy)
+
 
 (defvar woodshed/notes '("C"
                          ("C#" "Db")
@@ -24,6 +20,13 @@
                          ("A#" "Bb")
                          "B")
   "Notes and their enharmonic aliases in the western musical notation.")
+
+(defun woodshed/note-equal (note1 note2)
+  "Check if NOTE1 and NOTE2 are the same note."
+  (if (listp note2)
+      (or (string-equal note1 (car note2))
+          (string-equal note1 (cadr note2)))
+    (string-equal note1 note2)))
 
 (defun woodshed/scale (root)
   "Output a major scale in the given ROOT."
