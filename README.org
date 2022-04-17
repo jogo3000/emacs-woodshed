@@ -1,0 +1,4 @@
+* emacs-woodshed.el
+
+This package helps aspiring musicians to practice their instruments by
+generating practice sheets
