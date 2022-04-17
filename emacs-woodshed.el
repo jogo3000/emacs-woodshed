@@ -4,8 +4,6 @@
 ;; their chops.
 ;;; Code:
 
-(require 'ivy)
-
 (defvar woodshed/practice-buffer-name "*arpeggio-practice*")
 
 (defvar woodshed/notes '("C"
@@ -125,10 +123,11 @@
 (defun woodshed/start-practicing-arpeggios ()
   "Interactive version which asks which root you want to practice on."
   (interactive)
-  (ivy-read "Choose scale"
-            (mapcar 'woodshed/pprint-note woodshed/notes)
-            :require-match t
-            :action 'woodshed/arpeggio-practice))
+  (woodshed/arpeggio-practice
+   (completing-read
+    "Choose scale"
+    (mapcar 'woodshed/pprint-note woodshed/notes)
+    nil t)))
 
 (provide 'emacs-woodshed)
 ;;; emacs-woodshed.el ends here
