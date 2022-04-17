@@ -10,16 +10,16 @@
 (defvar woodshed/practice-buffer-name "*arpeggio-practice*")
 
 (defvar woodshed/notes '("C"
-                         ("C#" "Db")
+                         ("C♯" "D♭")
                          "D"
-                         ("D#" "Eb")
+                         ("D♯" "E♭")
                          "E"
                          "F"
-                         ("F#" "Gb")
+                         ("F♯" "G♭")
                          "G"
-                         ("G#" "Ab")
+                         ("G♯" "A♭")
                          "A"
-                         ("A#" "Bb")
+                         ("A♯" "B♭")
                          "B")
   "Notes and their enharmonic aliases in the western musical notation.")
 
