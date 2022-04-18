@@ -12,8 +12,8 @@
 
 (defface woodshed-default
   '((t :family "Monospace"
-       :foreground "gray"
-       :weight semi-bold))
+       :foreground "white"
+       :weight medium))
   "The basic fixed-pitch face for woodshed buffers."
   :group 'basic-faces)
 
