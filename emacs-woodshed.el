@@ -108,30 +108,43 @@
    (woodshed/first-inversion
     (woodshed/first-inversion chord))))
 
-(defun woodshed/arpeggio-practice (root)
-  "Create a practice sheet to a buffer for chords in the given ROOT."
+(defun woodshed/render-practice-buffer (render-fn)
+  "Rerender practice buffer.
+
+Call RENDER-FN in the context of the practice buffer."
   (with-current-buffer (get-buffer-create woodshed/practice-buffer-name)
     (woodshed-mode)
     (buffer-face-set 'woodshed-default)
     (read-only-mode -1)
     (delete-region (point-min) (point-max))
-    (let ((chords (woodshed/arpeggios (woodshed/scale root))))
-      (insert "Basic chords:\n")
-      (dolist (chord chords)
-        (insert (woodshed/pprint-chord chord)
-                "\n"))
 
-      (insert "\nFirst inversions:\n")
-      (dolist (chord chords)
-        (insert (woodshed/pprint-chord (woodshed/first-inversion chord))
-                "\n"))
-
-      (insert "\nSecond inversions:\n")
-      (dolist (chord chords)
-        (insert (woodshed/pprint-chord (woodshed/second-inversion chord))
-                "\n")))
+    (funcall render-fn)
 
     (switch-to-buffer-other-window woodshed/practice-buffer-name)))
+
+(defun woodshed/render-triads-and-inversions (root)
+  "Render all triads and their inversions in a major scale starting at ROOT."
+  (let ((chords (woodshed/arpeggios (woodshed/scale root))))
+    (insert "Basic chords:\n")
+    (dolist (chord chords)
+      (insert (woodshed/pprint-chord chord)
+              "\n"))
+
+    (insert "\nFirst inversions:\n")
+    (dolist (chord chords)
+      (insert (woodshed/pprint-chord (woodshed/first-inversion chord))
+              "\n"))
+
+    (insert "\nSecond inversions:\n")
+    (dolist (chord chords)
+      (insert (woodshed/pprint-chord (woodshed/second-inversion chord))
+              "\n"))))
+
+(defun woodshed/arpeggio-practice (root)
+  "Create a practice sheet to a buffer for chords in the given ROOT."
+  (woodshed/render-practice-buffer
+   (lambda ()
+     (woodshed/render-triads-and-inversions root))))
 
 (defun woodshed/start-practicing-arpeggios ()
   "Interactive version which asks which root you want to practice on."
@@ -142,6 +155,28 @@
                     nil t)))
     (woodshed/arpeggio-practice
      (woodshed/parse-note root-note))))
+
+(defun woodshed/circle-of-fifths ()
+  "Generate circle of fifths starting from C."
+  (seq-map (apply-partially 'seq-elt
+                            woodshed/notes)
+           (seq-map (lambda (note)
+                      (% (* 7  note) 12))
+                    (number-sequence 0 11))))
+
+(defun woodshed/exercise-circle-of-fifths ()
+  "Start practicing all arpeggios in circle of fifths."
+  (interactive)
+  (woodshed/render-practice-buffer
+   (lambda ()
+     (seq-do
+      (lambda (root)
+        (insert "======= " (woodshed/pprint-note root) " major =======\n")
+        (woodshed/render-triads-and-inversions root)
+        (insert "\n"))
+      (woodshed/circle-of-fifths)))))
+
+
 
 (provide 'emacs-woodshed)
 ;;; emacs-woodshed.el ends here
