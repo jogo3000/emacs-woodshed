@@ -34,6 +34,12 @@
 
 (defvar woodshed/major-scale-intervals '(2 2 1 2 2 2))
 
+(defun woodshed/scale-nth (scale n)
+  "Return Nth note of the SCALE.
+
+Supports \"infinite\" degrees of the scale so that N wraps around scale length."
+  (seq-elt scale (% n (seq-length scale))))
+
 (defun woodshed/note-equal (note1 note2)
   "Check if NOTE1 and NOTE2 are the same note."
   (if (listp note2)
@@ -44,7 +50,6 @@
 (defun woodshed/scale (root)
   "Output a major scale in the given ROOT."
   (let* ((position (seq-position woodshed/notes root))
-         (extended-notes (seq-concatenate 'list woodshed/notes woodshed/notes))
          (positions (reverse
                      (seq-reduce
                       (lambda (scale interval)
@@ -52,19 +57,18 @@
                       woodshed/major-scale-intervals
                       (list position)))))
     (seq-map
-     (apply-partially 'seq-elt extended-notes)
+     (apply-partially 'woodshed/scale-nth woodshed/notes)
      positions)))
 
 (defun woodshed/arpeggios (scale)
   "Output arpeggios in the given SCALE."
-  (let ((extended-scale (seq-concatenate 'list scale scale)))
-    (seq-map-indexed
-     (lambda (note i)
-       (list
-        note
-        (nth (+ i 2) extended-scale)
-        (nth (+ i 4) extended-scale)))
-     scale)))
+  (seq-map-indexed
+   (lambda (note i)
+     (list
+      note
+      (woodshed/scale-nth scale (+ i 2))
+      (woodshed/scale-nth scale (+ i 4))))
+   scale))
 
 (defun woodshed/pprint-note (note)
   "Stringify a NOTE."
@@ -158,10 +162,10 @@ Call RENDER-FN in the context of the practice buffer."
 
 (defun woodshed/circle-of-fifths ()
   "Generate circle of fifths starting from C."
-  (seq-map (apply-partially 'seq-elt
+  (seq-map (apply-partially 'woodshed/scale-nth
                             woodshed/notes)
            (seq-map (lambda (note)
-                      (% (* 7  note) 12))
+                      (* 7  note))
                     (number-sequence 0 11))))
 
 (defun woodshed/exercise-circle-of-fifths ()
@@ -175,8 +179,6 @@ Call RENDER-FN in the context of the practice buffer."
         (woodshed/render-triads-and-inversions root)
         (insert "\n"))
       (woodshed/circle-of-fifths)))))
-
-
 
 (provide 'emacs-woodshed)
 ;;; emacs-woodshed.el ends here
