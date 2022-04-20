@@ -144,10 +144,18 @@ Call RENDER-FN in the context of the practice buffer."
       (insert (woodshed/pprint-chord (woodshed/second-inversion chord))
               "\n"))))
 
+(defun woodshed/render-major-scale (root)
+  "Render major scale starting from ROOT to practice sheet."
+  (insert (woodshed/pprint-note root) " major scale\n")
+
+  (let ((major-scale (woodshed/scale root)))
+    (insert (string-join (seq-map 'woodshed/pprint-note major-scale) " ") "\n\n")))
+
 (defun woodshed/arpeggio-practice (root)
   "Create a practice sheet to a buffer for chords in the given ROOT."
   (woodshed/render-practice-buffer
    (lambda ()
+     (woodshed/render-major-scale root)
      (woodshed/render-triads-and-inversions root))))
 
 (defun woodshed/start-practicing-arpeggios ()
@@ -176,6 +184,7 @@ Call RENDER-FN in the context of the practice buffer."
      (seq-do
       (lambda (root)
         (insert "======= " (woodshed/pprint-note root) " major =======\n")
+        (woodshed/render-major-scale root)
         (woodshed/render-triads-and-inversions root)
         (insert "\n"))
       (woodshed/circle-of-fifths)))))
