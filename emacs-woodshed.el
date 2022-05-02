@@ -33,6 +33,7 @@
   "Notes and their enharmonic aliases in the western musical notation.")
 
 (defvar woodshed/major-scale-intervals '(2 2 1 2 2 2))
+(defvar woodshed/minor-scale-intervals '(2 1 2 2 1 2))
 
 (defun woodshed/scale-nth (scale n)
   "Return Nth note of the SCALE.
@@ -47,18 +48,22 @@ Supports \"infinite\" degrees of the scale so that N wraps around scale length."
           (string-equal note1 (cadr note2)))
     (string-equal note1 note2)))
 
-(defun woodshed/scale (root)
-  "Output a major scale in the given ROOT."
+(defun woodshed/scale (scale-intervals root)
+  "Output a scale with given SCALE-INTERVALS in the given ROOT."
   (let* ((position (seq-position woodshed/notes root))
          (positions (reverse
                      (seq-reduce
                       (lambda (scale interval)
                         (cons (+ (car scale) interval) scale))
-                      woodshed/major-scale-intervals
+                      scale-intervals
                       (list position)))))
     (seq-map
      (apply-partially 'woodshed/scale-nth woodshed/notes)
      positions)))
+
+(defun woodshed/major-scale (root)
+  "Output a major scale in the given ROOT."
+  (woodshed/scale woodshed/major-scale-intervals root))
 
 (defun woodshed/arpeggios (scale)
   "Output arpeggios in the given SCALE."
@@ -126,9 +131,9 @@ Call RENDER-FN in the context of the practice buffer."
 
     (switch-to-buffer-other-window woodshed/practice-buffer-name)))
 
-(defun woodshed/render-triads-and-inversions (root)
-  "Render all triads and their inversions in a major scale starting at ROOT."
-  (let ((chords (woodshed/arpeggios (woodshed/scale root))))
+(defun woodshed/render-triads-and-inversions-of-scale (scale)
+  "Render all triads and their inversions of a given SCALE."
+  (let ((chords (woodshed/arpeggios scale)))
     (insert "Basic chords:\n")
     (dolist (chord chords)
       (insert (woodshed/pprint-chord chord)
@@ -144,12 +149,21 @@ Call RENDER-FN in the context of the practice buffer."
       (insert (woodshed/pprint-chord (woodshed/second-inversion chord))
               "\n"))))
 
+(defun woodshed/render-triads-and-inversions (root)
+  "Render all triads and their inversions in a major scale starting at ROOT."
+  (woodshed/render-triads-and-inversions-of-scale
+   (woodshed/scale woodshed/major-scale-intervals root)))
+
+(defun woodshed/render-scale (scale)
+  "Render SCALE to buffer."
+  (insert (string-join (seq-map 'woodshed/pprint-note scale) " ") "\n\n"))
+
 (defun woodshed/render-major-scale (root)
   "Render major scale starting from ROOT to practice sheet."
   (insert (woodshed/pprint-note root) " major scale\n")
 
-  (let ((major-scale (woodshed/scale root)))
-    (insert (string-join (seq-map 'woodshed/pprint-note major-scale) " ") "\n\n")))
+  (let ((major-scale (woodshed/major-scale root)))
+    (woodshed/render-scale major-scale)))
 
 (defun woodshed/arpeggio-practice (root)
   "Create a practice sheet to a buffer for chords in the given ROOT."
@@ -157,6 +171,14 @@ Call RENDER-FN in the context of the practice buffer."
    (lambda ()
      (woodshed/render-major-scale root)
      (woodshed/render-triads-and-inversions root))))
+
+(defun woodshed/minor-arpeggios-practice (root)
+  "Create a practice sheet arpeggios in a minor scale in the given ROOT."
+  (woodshed/render-practice-buffer
+   (lambda ()
+     (let ((minor-scale (woodshed/scale woodshed/minor-scale-intervals root) ))
+       (woodshed/render-scale minor-scale)
+       (woodshed/render-triads-and-inversions-of-scale minor-scale)))))
 
 (defun woodshed/start-practicing-arpeggios ()
   "Interactive version which asks which root you want to practice on."
@@ -166,6 +188,16 @@ Call RENDER-FN in the context of the practice buffer."
                     (mapcar 'woodshed/pprint-note woodshed/notes)
                     nil t)))
     (woodshed/arpeggio-practice
+     (woodshed/parse-note root-note))))
+
+(defun woodshed/start-practicing-minor-scale-arpeggios ()
+  "Interactive version which asks which root you want to practice on."
+  (interactive)
+  (let ((root-note (completing-read
+                    "Choose scale"
+                    (mapcar 'woodshed/pprint-note woodshed/notes)
+                    nil t)))
+    (woodshed/minor-arpeggios-practice
      (woodshed/parse-note root-note))))
 
 (defun woodshed/circle-of-fifths ()
