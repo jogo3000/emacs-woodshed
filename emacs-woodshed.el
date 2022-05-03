@@ -221,5 +221,19 @@ Call RENDER-FN in the context of the practice buffer."
         (insert "\n"))
       (woodshed/circle-of-fifths)))))
 
+(defun woodshed/exercise-minor-circle-of-fifths ()
+  "Start practicing all minor scale arpeggios in circle of fifths."
+  (interactive)
+  (woodshed/render-practice-buffer
+   (lambda ()
+     (seq-do
+      (lambda (root)
+        (insert "======= " (woodshed/pprint-note root) " minor =======\n")
+        (let ((scale (woodshed/scale woodshed/minor-scale-intervals root)))
+          (woodshed/render-scale scale)
+          (woodshed/render-triads-and-inversions-of-scale scale))
+        (insert "\n"))
+      (woodshed/circle-of-fifths)))))
+
 (provide 'emacs-woodshed)
 ;;; emacs-woodshed.el ends here
